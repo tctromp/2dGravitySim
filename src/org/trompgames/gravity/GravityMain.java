@@ -113,18 +113,20 @@ public class GravityMain {
 			//planets.add(new Planet(new Vector2(500, 600), .00734, 10, new Vector2(750, 0), Color.blue));
 			
 			//planets.add(new Planet(new Vector2(500, 400), 1000000, 25, new Vector2(0, 0), Color.red));
-			planets.add(new Planet(new Vector2(500, 300), 20000, 25, new Vector2(0, 0), Color.red));
+			
+			
+			planets.add(new Planet(new Vector2(500, 300), 1500, 1500/10, new Vector2(0, 0), Color.red));
 
-			planets.add(new Planet(new Vector2(500, 600), 100, 10, new Vector2(500, -5), Color.green));//Mass *10^25
+			//planets.add(new Planet(new Vector2(500, 600), 100, 10, new Vector2(500, -5), Color.green));//Mass *10^25
 
-			planets.add(new Planet(new Vector2(500, 625), 25, 5, new Vector2(600, 5), Color.pink));//Mass *10^25
+			//planets.add(new Planet(new Vector2(500, 650), 25, 5, new Vector2(600, 5), Color.pink));//Mass *10^25
 
 			
-			for(int i = 0; i < 1; i++){
-				int x = (int) (Math.random() * 500) + 250;
-				int y = (int) (Math.random() * 500) + 250;
-				double size = (1.0 * Math.random()*100);
-				planets.add(new Planet(new Vector2(x, y), size, (int) (1.0 * size/10), new Vector2(Math.random() * 100 - 50, Math.random() * 100 - 50), Color.blue));
+			for(int i = 0; i < 500; i++){
+				int x = (int) (Math.random() * 20000) - 10000;
+				int y = (int) (Math.random() * 20000) - 10000;
+				double size = (1.0 * Math.random()*250);
+				planets.add(new Planet(new Vector2(x, y), size, (int) (1.0 * size/10), new Vector2(Math.random() * 2000 - 1000, Math.random() * 2000 - 1000), Color.blue));
 
 			}
 			
@@ -133,11 +135,33 @@ public class GravityMain {
 		public void update(){
 			
 			//Physics
-			for(Planet planet : planets){
-				for(Planet other : planets){ if(planet.equals(other)) continue;
+			for(int i = planets.size()-1; i >= 0; i--){
+				Planet planet = planets.get(i);
+				for(int j = planets.size()-1; j >= 0; j--){ 
+					Planet other = planets.get(j);
+					if(planet.equals(other)) continue;
 				
 					double dist = Vector2.dist(planet.getLocation(), other.getLocation());
-					if(dist < planet.getRadius()*2 + other.getRadius()*2) continue;
+					if(dist < planet.getRadius() + other.getRadius()){
+						Planet larger;
+						Planet smaller;
+						if(planet.getMass() > other.getMass()){
+							larger = planet;
+							smaller = other;
+						}
+						else{
+							smaller = planet;
+							larger = other;
+						}
+						
+						larger.setMass(larger.getMass()+smaller.getMass());
+						larger.setRadius(larger.getRadius() + smaller.getRadius());
+						
+						larger.getVelocity().setX((larger.getVelocity().getX()*larger.getMass() + smaller.getVelocity().getX()*smaller.getMass())/(larger.getMass() + smaller.getMass()));
+						larger.getVelocity().setY((larger.getVelocity().getY()*larger.getMass() + smaller.getVelocity().getY()*smaller.getMass())/(larger.getMass() + smaller.getMass()));
+						planets.remove(smaller);
+						continue;
+					}
 					double force = (1.0 * (GCONST*planet.getMass()*other.getMass())) / (1.0 * Math.pow(dist, 2));
 					//if(planet.getColor().equals(Color.blue)) System.out.println("C: " + planet.getColor());
 					//if(planet.getColor().equals(Color.blue)) System.out.println("F: " + force);
@@ -187,6 +211,7 @@ public class GravityMain {
 				
 				Vector2 v = planet.getLocation().add(f);
 				
+				/*
 				if(v.getX() < 0){
 					v.setX(0);
 					planet.getVelocity().setX(0);
@@ -206,7 +231,7 @@ public class GravityMain {
 					planet.getVelocity().setY(0);
 
 				}
-
+				*/
 				planet.setLocation(v);
 				//System.out.println(v);
 				//System.out.println(this.getGameFrame().getHeight());
@@ -269,10 +294,29 @@ public class GravityMain {
 			
 			g2d.clearRect(0, 0, this.getWidth(), this.getHeight());
 			
-			for(Planet planet : handler.getPlanets()){
+			int xOffset = 1000;
+			int yOffset = 1000;
+			
+			double scale = 0.1;
+			
+			for(int i = 0; i < handler.getPlanets().size(); i++){
+				Planet planet = handler.getPlanets().get(i);
+				if(planet.getColor().equals(Color.red)){
+					//xOffset = (int) -planet.getLocation().getX() + this.getWidth()/2;
+					//yOffset = (int) -planet.getLocation().getY() + this.getHeight()/2;
+					//System.out.println("True");
+				}
+			}
+			
+			for(int i = 0; i < handler.getPlanets().size(); i++){
+				Planet planet = handler.getPlanets().get(i);
+				Vector2 loc = planet.getLocation();
+				Vector2 v  = planet.getVelocity();
 				g2d.setColor(planet.getColor());
-				g2d.fillOval((int) planet.getLocation().getX(), (int) planet.getLocation().getY(), (int) (planet.getRadius()*2), (int) (planet.getRadius()*2));
-				//g2d
+				
+				g2d.fillOval((int) ((loc.getX() - planet.getRadius() + xOffset)*scale), (int) ((loc.getY() - planet.getRadius() + yOffset)*scale), (int) (planet.getRadius()*2*scale), (int) (planet.getRadius()*2*scale));
+				
+				g2d.drawLine((int) ((loc.getX() + xOffset)*scale), (int) ((loc.getY() + yOffset)*scale), (int) ((loc.getX()+v.getX() + xOffset)*scale), (int) ((loc.getY()+v.getY() + yOffset)*scale));
 			}
 			
 		}
