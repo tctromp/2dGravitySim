@@ -101,7 +101,7 @@ public class GravityMain {
 		private GameThread thread;
 		
 		//public static double GCONST = 0.0000000000667;
-		public static double GCONST = 100;
+		public static double GCONST = 15000;
 
 		
 		private ArrayList<Planet> planets = new ArrayList<Planet>();
@@ -115,17 +115,17 @@ public class GravityMain {
 			//planets.add(new Planet(new Vector2(500, 400), 1000000, 25, new Vector2(0, 0), Color.red));
 			
 			
-			planets.add(new Planet(new Vector2(500, 300), 1500, 1500/10, new Vector2(0, 0), Color.red));
+			planets.add(new Planet(new Vector2(2000, 2000), 1500, 1500/10, new Vector2(0, 0), Color.red));
 
 			//planets.add(new Planet(new Vector2(500, 600), 100, 10, new Vector2(500, -5), Color.green));//Mass *10^25
 
 			//planets.add(new Planet(new Vector2(500, 650), 25, 5, new Vector2(600, 5), Color.pink));//Mass *10^25
 
 			
-			for(int i = 0; i < 500; i++){
-				int x = (int) (Math.random() * 20000) - 10000;
-				int y = (int) (Math.random() * 20000) - 10000;
-				double size = (1.0 * Math.random()*250);
+			for(int i = 0; i < 100; i++){
+				int x = (int) (Math.random() * 6000);
+				int y = (int) (Math.random() * 6000);
+				double size = (1.0 * Math.random()*500);
 				planets.add(new Planet(new Vector2(x, y), size, (int) (1.0 * size/10), new Vector2(Math.random() * 2000 - 1000, Math.random() * 2000 - 1000), Color.blue));
 
 			}
@@ -142,7 +142,7 @@ public class GravityMain {
 					if(planet.equals(other)) continue;
 				
 					double dist = Vector2.dist(planet.getLocation(), other.getLocation());
-					if(dist < planet.getRadius() + other.getRadius()){
+					if(dist < (planet.getRadius() + other.getRadius())/2){
 						Planet larger;
 						Planet smaller;
 						if(planet.getMass() > other.getMass()){
@@ -196,7 +196,7 @@ public class GravityMain {
 						//System.out.println("Angle: " + angle);
 					}
 				}
-				planet.setVelocity(planet.getVelocity().add(planet.getAcceleration()));
+				planet.setVelocity(planet.getVelocity().add(planet.getAcceleration().mult(thread.getDeltaTime())));
 				planet.setAcceleration(new Vector2(0,0));
 			}
 			
@@ -316,7 +316,7 @@ public class GravityMain {
 				
 				g2d.fillOval((int) ((loc.getX() - planet.getRadius() + xOffset)*scale), (int) ((loc.getY() - planet.getRadius() + yOffset)*scale), (int) (planet.getRadius()*2*scale), (int) (planet.getRadius()*2*scale));
 				
-				g2d.drawLine((int) ((loc.getX() + xOffset)*scale), (int) ((loc.getY() + yOffset)*scale), (int) ((loc.getX()+v.getX() + xOffset)*scale), (int) ((loc.getY()+v.getY() + yOffset)*scale));
+				///g2d.drawLine((int) ((loc.getX() + xOffset)*scale), (int) ((loc.getY() + yOffset)*scale), (int) ((loc.getX()+v.getX() + xOffset)*scale), (int) ((loc.getY()+v.getY() + yOffset)*scale));
 			}
 			
 		}
